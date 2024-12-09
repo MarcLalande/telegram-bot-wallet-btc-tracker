@@ -65,12 +65,31 @@ async def fetchDataDiff(context: ContextTypes.DEFAULT_TYPE) -> None:
         outcome =data['chain_stats']['spent_txo_sum']
 
         new_balance = (income-outcome)/1e8
-        if previous_balance != new_balance:
+        if previous_balance >= new_balance:
             operation = abs(previous_balance - new_balance)
             if operation > 10:
                 positive_transactions.append(operation)
                 await bot.send_message(
-                    chat_id='mr100News',
+                    chat_id='@mr100News',
+                    text=
+                    f'Mr 100 has Sold : {abs(previous_balance - new_balance)} BTC'
+                )
+
+            elif operation < -10:
+                negative_transactions.append(operation)
+                await bot.send_message(
+                    chat_id='@mr100News',
+                    text=
+                    f' Mr 100 has sold : {abs(previous_balance - new_balance)} BTC'
+                )
+
+            previous_balance = new_balance
+        if previous_balance < new_balance:
+            operation = abs(previous_balance - new_balance)
+            if operation > 10:
+                positive_transactions.append(operation)
+                await bot.send_message(
+                    chat_id='@mr100News',
                     text=
                     f'Mr 100 has bought : {abs(previous_balance - new_balance)} BTC'
                 )
@@ -78,15 +97,18 @@ async def fetchDataDiff(context: ContextTypes.DEFAULT_TYPE) -> None:
             elif operation < -10:
                 negative_transactions.append(operation)
                 await bot.send_message(
-                    chat_id='mr100News',
+                    chat_id='@mr100News',
                     text=
                     f' Mr 100 has sold : {abs(previous_balance - new_balance)} BTC'
                 )
 
             previous_balance = new_balance
-
         else:
-
+            await bot.send_message(
+                chat_id=my_id,
+                text=
+                f' Mr 100 has Nothing but requests works'
+            )
             print('No changes in the wallet for now')
 
     else:
@@ -100,7 +122,7 @@ async def daily_count(context: ContextTypes.DEFAULT_TYPE) -> None:
     global negative_transactions
     global positive_transactions
     await bot.send_message(
-        chat_id='mr100News',
+        chat_id='@mr100News',
         text=
         f' Mr 100 has bought : {sum(positive_transactions)} and sold : {sum(negative_transactions)} BTC .  the result is {sum(positive_transactions)-sum(negative_transactions)}'
     )
@@ -142,7 +164,7 @@ if __name__ == '__main__':
 
 
     j.run_repeating(fetchDataDiff, interval=30 * 60, first=0)#every 10 min print if changes have been made 
-    j.run_repeating(informAdmin, interval=60 * 60, first=0) # send data to specify user about bot working
+    j.run_repeating(informAdmin, interval=10 * 60, first=0) # send data to specify user about bot working
     j.run_daily(daily_count, time_daily, days=tuple(range(7))) #every day print changes from yesterday
 
 

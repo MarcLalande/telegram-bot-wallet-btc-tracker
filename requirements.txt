@@ -1,0 +1,7 @@
+python-telegram-bot
+requests
+pytz
+python-telegram-bot[job-queue]
+
+datetime
+
